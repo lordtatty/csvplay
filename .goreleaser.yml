@@ -1,0 +1,20 @@
+project_name: csvplay
+
+release:
+  prerelease: auto
+
+before:
+  hooks:
+    - go mod tidy
+
+brews:
+  - tap:
+      owner: lordtatty
+      name: homebrew-csvplay
+    folder: Formula
+    homepage:  https://github.com/lordtatty/csvplay
+    description: Deliver Go binaries as fast and easily as possible
+    test: |
+      system "#{bin}/csvplay"
+    dependencies:
+    - name: go

@@ -1,0 +1,131 @@
+{
+  "data": {
+    "id": "2",
+    "type": "lti1",
+    "meta": {
+      "resource_type": "integrations"
+    },
+    "attributes": {
+      "transforms": [
+        {
+          "refs": [
+            "node_id"
+          ],
+          "field": "custom_inst_short_code"
+        },
+        {
+          "refs": [
+            "module_id"
+          ],
+          "field": "context_label",
+          "regex": "^([A-Z0-9]{6}|[A-Z]{4}[NF1-5][0-9]{3})-.*",
+          "example": {
+            "input": {
+              "context_label": "MUSI1011-1-UNUK-AUT-2021"
+            },
+            "output": {
+              "module_id": "MUSI1011"
+            }
+          }
+        },
+        {
+          "refs": [
+            "module_id"
+          ],
+          "field": "context_label",
+          "regex": "(.*)",
+          "example": {
+            "input": {
+              "context_label": "MUSI1011-1-UNUK-AUT-2021"
+            },
+            "output": {
+              "module_id": "MUSI1011-1-UNUK-AUT-2021"
+            }
+          }
+        },
+        {
+          "refs": [
+            "resourceTitle"
+          ],
+          "field": "resource_link_title"
+        },
+        {
+          "refs": [
+            "resourceDescription"
+          ],
+          "field": "resource_link_description"
+        },
+        {
+          "refs": [
+            "user_full_name"
+          ],
+          "field": "lis_person_name_full"
+        },
+        {
+          "refs": [
+            "user_email"
+          ],
+          "field": "lis_person_contact_email_primary"
+        },
+        {
+          "refs": [
+            "user_id"
+          ],
+          "field": "user_id"
+        },
+        {
+          "refs": [
+            "user_roles"
+          ],
+          "field": "roles"
+        },
+        {
+          "refs": [
+            "vleType"
+          ],
+          "field": "tool_consumer_info_product_family_code"
+        },
+        {
+          "refs": [
+            "user_first_name"
+          ],
+          "field": "lis_person_name_given"
+        },
+        {
+          "refs": [
+            "user_surname"
+          ],
+          "field": "lis_person_name_family"
+        },
+        {
+          "refs": [
+            "return_url"
+          ],
+          "field": "content_item_return_url"
+        },
+        {
+          "refs": [
+            "intended_use"
+          ],
+          "field": "custom_intended_use"
+        },
+        {
+          "refs": [
+            "lti_data"
+          ],
+          "field": "data"
+        },
+        {
+          "ref": "return_url",
+          "value": {
+            "base64Encode": {
+              "ref": "return_url"
+            }
+          }
+        }
+      ],
+      "consumer_key": "pAewi1p3EvguccL",
+      "shared_secret": "txMxGkMV3gGyzjV"
+    }
+  }
+}
