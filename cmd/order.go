@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/lordtatty/csvplay/csvplay"
 	"github.com/spf13/cobra"
 )
 
@@ -39,15 +40,11 @@ func GetOrderCmd(opener CSVOpener) func(cmd *cobra.Command, args []string) error
 			Writer: csv.NewWriter(cmd.OutOrStdout()),
 		}
 		defer buffCSV.Flush()
-		return iterateRows(r,
-			func(row []string) error {
-				var newRow []string
-				for _, col := range order {
-					newRow = append(newRow, row[col])
-				}
-				buffCSV.Write(newRow)
-				return nil
-			})
+		csvplay := csvplay.CSVPlay{
+			Input:  r,
+			Output: buffCSV,
+		}
+		return csvplay.Order(order)
 	}
 }
 
