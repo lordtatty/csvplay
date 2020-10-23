@@ -20,37 +20,53 @@ var OrderCmd = &cobra.Command{
 
 func GetOrderCmd(opener CSVOpener) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
-		r, err := getPipeCsvReader(cmd.InOrStdin())
+		reader, err := getFileOrPipeReader(opener, cmd, args)
 		if err != nil {
 			return err
 		}
-		if r == nil {
-			r, err = opener.Open(args[0])
-			if err != nil {
-				return err
-			}
-		}
-		stringSlice := strings.Split(OrderFlags.F, ",")
-		order := make([]int, len(stringSlice))
-		for i, s := range stringSlice {
-			order[i], _ = strconv.Atoi(s)
-			order[i]--
-		}
-		buffCSV := &BufferedCSVWriter{
+		order := orderFlags.GetOrder()
+		writer := &BufferedCSVWriter{
 			Writer: csv.NewWriter(cmd.OutOrStdout()),
 		}
-		defer buffCSV.Flush()
+		defer writer.Flush()
 		csvplay := csvplay.CSVPlay{
-			Input:  r,
-			Output: buffCSV,
+			Input:  reader,
+			Output: writer,
 		}
 		return csvplay.Order(order)
 	}
 }
 
-var OrderFlags = struct {
+func getFileOrPipeReader(opener CSVOpener, cmd *cobra.Command, args []string) (*csv.Reader, error) {
+	r, err := getPipeCsvReader(cmd.InOrStdin())
+	if err != nil {
+		return nil, err
+	}
+	if r == nil {
+		r, err = opener.Open(args[0])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return r, nil
+
+}
+
+type OrderFlags struct {
 	F string
-}{}
+}
+
+func (p *OrderFlags) GetOrder() []int {
+	stringSlice := strings.Split(p.F, ",")
+	order := make([]int, len(stringSlice))
+	for i, s := range stringSlice {
+		order[i], _ = strconv.Atoi(s)
+		order[i]--
+	}
+	return order
+}
+
+var orderFlags OrderFlags
 
 func init() {
 	// rootCmd.AddCommand(rootCmd)
@@ -63,6 +79,6 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	OrderCmd.Flags().StringVar(&OrderFlags.F, "f", "", "")
+	OrderCmd.Flags().StringVar(&orderFlags.F, "f", "", "")
 	// rootCmd.MarkFlagRequired("file")
 }
