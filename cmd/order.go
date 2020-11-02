@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"encoding/csv"
+	"io"
 	"strconv"
 	"strings"
 
@@ -20,36 +21,42 @@ var OrderCmd = &cobra.Command{
 
 func GetOrderCmd(opener CSVOpener) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
-		reader, err := getFileOrPipeReader(opener, cmd, args)
-		if err != nil {
-			return err
-		}
 		order := orderFlags.GetOrder()
-		writer := &BufferedCSVWriter{
-			Writer: csv.NewWriter(cmd.OutOrStdout()),
+		action := func(play *csvplay.CSVPlay) error {
+			return play.Order(order)
 		}
-		defer writer.Flush()
-		csvplay := csvplay.CSVPlay{
-			Input:  reader,
-			Output: writer,
-		}
-		return csvplay.Order(order)
+		return Perform(action, opener, cmd, args)
 	}
 }
 
-func getFileOrPipeReader(opener CSVOpener, cmd *cobra.Command, args []string) (*csv.Reader, error) {
-	r, err := getPipeCsvReader(cmd.InOrStdin())
+func Perform(f func(play *csvplay.CSVPlay) error, opener CSVOpener, cmd *cobra.Command, args []string) error {
+	reader, err := getFileOrPipeReader(opener, cmd.InOrStdin(), args[0])
+	if err != nil {
+		return err
+	}
+	writer := &BufferedCSVWriter{
+		Writer: csv.NewWriter(cmd.OutOrStdout()),
+	}
+	defer writer.Flush()
+	csvplay := &csvplay.CSVPlay{
+		Input:  reader,
+		Output: writer,
+	}
+	return f(csvplay)
+}
+
+func getFileOrPipeReader(opener CSVOpener, reader io.Reader, filename string) (*csv.Reader, error) {
+	r, err := getPipeCsvReader(reader)
 	if err != nil {
 		return nil, err
 	}
 	if r == nil {
-		r, err = opener.Open(args[0])
+		r, err = opener.Open(filename)
 		if err != nil {
 			return nil, err
 		}
 	}
 	return r, nil
-
 }
 
 type OrderFlags struct {
